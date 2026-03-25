@@ -59,3 +59,17 @@ decorative, and handwritten styles.
 Workspace for generated scripts and output images. Gitignored.
 Scripts are kept after delivery for iteration; intermediate files
 prefixed with `_tmp_` are cleaned up.
+
+## Engine Status
+
+Check which engines are installed:
+
+```bash
+pdm run python scripts/check_engines.py
+```
+
+Install any missing engines:
+
+```bash
+pdm run python scripts/check_engines.py --install
+```

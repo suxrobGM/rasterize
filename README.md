@@ -83,20 +83,6 @@ This will:
 
 - [Project Structure](docs/project-structure.md) — directory layout, key directories, and what each part does
 
-## Engine Status
-
-Check which engines are installed:
-
-```bash
-pdm run python scripts/check_engines.py
-```
-
-Install any missing engines:
-
-```bash
-pdm run python scripts/check_engines.py --install
-```
-
 ## How It Works
 
 1. You describe the image you want in natural language
