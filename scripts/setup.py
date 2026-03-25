@@ -8,14 +8,15 @@ Usage:
     python scripts/setup.py --bare   # Pip install into current env (no pdm)
 """
 
-import subprocess
-import sys
 import os
 import shutil
+import subprocess
+import sys
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO_ROOT: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+"""Absolute path to the repository root."""
 
-PACKAGES = [
+PACKAGES: list[str] = [
     "Pillow",
     "pycairo",
     "matplotlib",
@@ -26,10 +27,20 @@ PACKAGES = [
     "kaleido",
     "playwright",
 ]
+"""Package names to install for all rendering engines."""
 
 
-def run(cmd, description, check=True):
-    """Run a command and print status."""
+def run(cmd: list[str], description: str, *, check: bool = True) -> bool:
+    """Run a subprocess command and print its status.
+
+    Args:
+        cmd: Command and arguments to execute.
+        description: Human-readable description shown during execution.
+        check: If True, print a warning on non-zero exit code.
+
+    Returns:
+        True if the command exited successfully, False otherwise.
+    """
     print(f"  {description}...")
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0 and check:
@@ -38,13 +49,19 @@ def run(cmd, description, check=True):
     return True
 
 
-def setup_with_pdm():
-    """Set up using pdm (creates venv automatically)."""
+def setup_with_pdm() -> None:
+    """Set up the project using pdm.
+
+    Installs pdm if not found, then creates a virtual environment,
+    installs all dependencies, downloads the Playwright Chromium binary,
+    and verifies engine availability.
+    """
     if not shutil.which("pdm"):
         print("pdm not found. Installing pdm...")
         result = subprocess.run(
             [sys.executable, "-m", "pip", "install", "pdm", "--user"],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         if result.returncode != 0:
             print(f"  Failed to install pdm: {result.stderr[:200]}")
@@ -56,9 +73,7 @@ def setup_with_pdm():
     print("=== Rasterize: Setting up with pdm ===\n")
 
     print("[1/3] Installing dependencies into venv...")
-    result = subprocess.run(
-        ["pdm", "install"], cwd=REPO_ROOT, capture_output=True, text=True
-    )
+    result = subprocess.run(["pdm", "install"], cwd=REPO_ROOT, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"  pdm install failed: {result.stderr[:300]}")
         sys.exit(1)
@@ -81,16 +96,22 @@ def setup_with_pdm():
     print("Run scripts with: pdm run python <script.py>")
 
 
-def setup_bare():
-    """Install packages directly into the current Python environment."""
+def setup_bare() -> None:
+    """Install packages directly into the current Python environment.
+
+    Falls back to this mode when pdm is not desired. Installs all engine
+    packages via pip, downloads Playwright Chromium, and verifies engines.
+    Prints platform-specific hints if pycairo installation fails.
+    """
     print("=== Rasterize: Installing into current Python environment ===\n")
 
-    python = sys.executable
+    python: str = sys.executable
 
     print(f"[1/3] Installing packages with {python}...")
     result = subprocess.run(
-        [python, "-m", "pip", "install"] + PACKAGES,
-        capture_output=True, text=True,
+        [python, "-m", "pip", "install", *PACKAGES],
+        capture_output=True,
+        text=True,
     )
     if result.returncode != 0:
         print(f"  pip install failed: {result.stderr[:300]}")
@@ -111,7 +132,8 @@ def setup_bare():
     print("\n=== Setup complete! ===")
 
 
-def main():
+def main() -> None:
+    """Entry point — dispatch to pdm or bare setup based on CLI args."""
     if "--bare" in sys.argv:
         setup_bare()
     else:

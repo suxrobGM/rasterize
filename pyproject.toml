@@ -5,15 +5,15 @@ description = "Multi-engine raster image generation plugin for Claude Code"
 requires-python = ">=3.14"
 license = "MIT"
 dependencies = [
-    "Pillow>=12.1",
-    "pycairo>=1.29",
-    "matplotlib>=3.10",
-    "seaborn>=0.13",
-    "numpy>=2.4",
-    "pandas>=3.0",
-    "plotly>=6.6",
-    "kaleido>=1.2.0",
-    "playwright>=1.58",
+  "Pillow>=12.1",
+  "pycairo>=1.29",
+  "matplotlib>=3.10",
+  "seaborn>=0.13",
+  "numpy>=2.4",
+  "pandas>=3.0",
+  "plotly>=6.6",
+  "kaleido>=1.2.0",
+  "playwright>=1.58",
 ]
 
 [project.optional-dependencies]
@@ -26,3 +26,14 @@ distribution = false
 [tool.pdm.scripts]
 setup = { shell = "pdm install && pdm run playwright install chromium" }
 check = { call = "scripts.check_engines:main" }
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"

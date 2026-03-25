@@ -12,9 +12,21 @@ Usage:
 import importlib
 import subprocess
 import sys
+from collections.abc import Callable
+from typing import TypedDict
 
 
-ENGINES = {
+class EngineSpec(TypedDict, total=False):
+    """Specification for a rendering engine."""
+
+    module: str
+    verify: Callable[[], object]
+    version: Callable[[], str]
+    install_args: list[str]
+    post_install: list[str]
+
+
+ENGINES: dict[str, EngineSpec] = {
     "pillow": {
         "module": "PIL",
         "verify": lambda: __import__("PIL.Image", fromlist=["Image"]).new("RGBA", (1, 1)),
@@ -55,8 +67,20 @@ ENGINES = {
 }
 
 
-def check_engine(name, spec):
-    """Check if an engine is available. Returns (available, version)."""
+def check_engine(name: str, spec: EngineSpec) -> tuple[bool, str]:
+    """Check if an engine is importable and functional.
+
+    Imports the module, runs the verify callable to confirm it works,
+    and retrieves the version string.
+
+    Args:
+        name: Human-readable engine name (e.g. "pillow").
+        spec: Engine specification with module, verify, and version callables.
+
+    Returns:
+        A tuple of (available, info) where info is the version string
+        if available, or the error message if not.
+    """
     try:
         importlib.import_module(spec["module"])
         spec["verify"]()
@@ -69,8 +93,19 @@ def check_engine(name, spec):
         return False, str(e)
 
 
-def install_engine(name, spec):
-    """Install a missing engine."""
+def install_engine(name: str, spec: EngineSpec) -> bool:
+    """Install a missing engine using pip.
+
+    Runs the install command from the spec, then any post-install steps
+    (e.g. downloading browser binaries for Playwright).
+
+    Args:
+        name: Human-readable engine name.
+        spec: Engine specification with install_args and optional post_install.
+
+    Returns:
+        True if installation succeeded, False otherwise.
+    """
     print(f"  Installing {name}...")
     result = subprocess.run(spec["install_args"], capture_output=True, text=True)
     if result.returncode != 0:
@@ -86,12 +121,17 @@ def install_engine(name, spec):
     return True
 
 
-def main():
-    do_install = "--install" in sys.argv
+def main() -> None:
+    """Check all engines and optionally install missing ones.
+
+    Pass ``--install`` on the command line to auto-install any engines
+    that are not currently available.
+    """
+    do_install: bool = "--install" in sys.argv
 
     print("Rasterize — Engine Status\n")
 
-    all_ok = True
+    all_ok: bool = True
     for name, spec in ENGINES.items():
         available, info = check_engine(name, spec)
         if available:
@@ -105,7 +145,7 @@ def main():
     if all_ok:
         print("\nAll engines ready!")
     elif not do_install:
-        print(f"\nRun with --install to install missing engines:")
+        print("\nRun with --install to install missing engines:")
         print(f"  python {sys.argv[0]} --install")
 
 
