@@ -1,5 +1,5 @@
 ---
-name: image
+name: render
 description: >
   Generate raster images (PNG, JPEG, WebP) from natural language prompts using Python rendering engines. Covers graphics, charts, layouts, and procedural art. Not for SVG output.
 ---
