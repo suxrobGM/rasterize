@@ -1,0 +1,23 @@
+{
+  "name": "rasterize",
+  "version": "1.0.0",
+  "description": "Generate raster images (PNG, JPEG, WebP) from natural language prompts using Python rendering engines (Pillow, Cairo, Matplotlib, Plotly, Playwright).",
+  "author": {
+    "name": "Sukhrob Ilyosbekov",
+    "url": "https://github.com/suxrobgm"
+  },
+  "repository": "https://github.com/suxrobgm/rasterize",
+  "license": "MIT",
+  "keywords": [
+    "image",
+    "raster",
+    "png",
+    "graphics",
+    "cairo",
+    "pillow",
+    "matplotlib",
+    "plotly",
+    "playwright",
+    "data-visualization"
+  ]
+}
